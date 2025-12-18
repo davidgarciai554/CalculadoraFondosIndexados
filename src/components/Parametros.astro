@@ -1,81 +1,421 @@
 ---
 // Parametros.astro
+import TablaResultados from "./TablaResultados.astro";
+import Grafica from "./Grafica.astro";
 ---
 
-<fieldset
-  class="fieldset bg-base-200 border-base-300 rounded-box w-full border p-4">
-  <legend class="fieldset-legend">Datos Inversion</legend>
-  <form id="dynamicForm" class="space-y-4">
-    <div class="flex w-full flex-col">
-      <label class="label">Aportacion inicial</label>
+<form class="w-2/3 flex flex-col gap-4" id="dynamicForm">
+  <fieldset
+    class="fieldset bg-base-200 border-base-300 rounded-box w-full border p-4 space-y-2"
+    id="dynamicForm">
+    <legend class="fieldset-legend">Datos Inversion</legend>
+    <div class="form-control w-full">
+      <label class="label"> Aportacion inicial </label>
       <input
         type="number"
         name="aportacionInicial"
-        class="input"
+        class="input input-bordered w-full"
         placeholder="Aportacion inicial"
+        value="10000"
+        min="0"
+        step="1"
+        required
       />
     </div>
 
     <div class="flex w-full gap-2">
-      <!-- //flex-col -->
-      <div class="rounded-box grid h-20 grow">
-        <label class="label">Aportacion por periodo</label>
+      <div class="form-control w-full">
+        <label class="label"> Aportacion por periodo </label>
         <input
           type="number"
           name="aportacionPeriodo"
-          class="input"
+          class="input input-bordered w-full"
           placeholder="Aportacion por periodo"
+          value="50"
+          min="0"
+          step="1"
+          required
         />
       </div>
-      <div class="rounded-box grid h-20 grow">
-        <label class="label">Frecuencia de aportacion</label>
-        <select class="select" name="frecuencia">
-          <option disabled selected>Elige la frecuencia</option>
-          <option value="1">Semanal</option>
-          <option value="2">Bisemanal</option>
-          <option value="4">Mensual</option>
+      <div class="form-control w-full">
+        <label class="label"> Frecuencia de aportacion </label>
+        <select class="select select-bordered w-full" name="frecuencia">
+          <option disabled>Elige la frecuencia</option>
+          <option value="52">Semanal</option>
+          <option value="26">Bisemanal</option>
+          <option value="12" selected>Mensual</option>
+          <option value="1">Anual</option>
         </select>
       </div>
     </div>
-    <span class="label">Optional</span>
-    <div class="flex w-full flex-col">
-      <label class="label">
-        <input type="checkbox" class="checkbox checkbox-md" name="inflacion" />
-        ¿Incluir inflacion en el calculo?
+
+    <div class="flex w-full gap-2">
+      <div class="form-control w-full">
+        <label class="label"> Tasa anual </label>
+        <label class="input">
+          <input
+            type="number"
+            class="grow"
+            placeholder="Tasa anual"
+            name="tasaAnual"
+            value="5"
+            min="0"
+            step="0.1"
+            required
+          />
+          <span class="label">%</span>
+        </label>
+      </div>
+      <div class="form-control w-full">
+        <label class="label"> Años </label>
+        <input
+          type="number"
+          name="años"
+          class="input input-bordered w-full"
+          placeholder="Años"
+          value="10"
+          min="0"
+          step="1"
+          required
+        />
+      </div>
+    </div>
+    <div class="divider"></div>
+    <label class="label"> Opcional </label>
+    <div class="form-control">
+      <label class="label cursor-pointer justify-start gap-2">
+        <input type="checkbox" class="checkbox" name="inflacion" />
+        <span class="label-text">¿Incluir inflacion en el calculo?</span>
       </label>
     </div>
-  </form>
-</fieldset>
+  </fieldset>
+</form>
+
+<div class="stats stats-vertical lg:stats-horizontal shadow bg-base-200">
+  <div class="stat">
+    <div class="stat-title">Total Aportado</div>
+    <div class="stat-value text-primary" id="totalAportado">€0</div>
+    <div class="stat-desc">Capital invertido</div>
+  </div>
+
+  <div class="stat">
+    <div class="stat-title">Intereses Ganados</div>
+    <div class="stat-value text-secondary" id="interesesGanados">€0</div>
+    <div class="stat-desc">Rendimiento generado</div>
+  </div>
+
+  <div class="stat">
+    <div class="stat-title">Valor Final</div>
+    <div class="stat-value text-accent" id="valorFinal">€0</div>
+    <div class="stat-desc">Total acumulado</div>
+  </div>
+</div>
+<Grafica />
+<TablaResultados />
 
 <script>
   const form = document.getElementById("dynamicForm") as HTMLFormElement;
 
-  function getFormValues() {
+  interface ResultadoAnual {
+    año: number;
+    totalAportado: number;
+    interesesAcumulados: number;
+    valorTotal: number;
+  }
+
+  let paginaActual = 1;
+  const resultadosPorPagina = 10;
+  let todosLosResultados: ResultadoAnual[] = [];
+
+  function calcularCrecimiento() {
     const formData = new FormData(form);
-    const values: Record<string, string> = {};
 
-    formData.forEach((value, key) => {
-      values[key] = value as string;
-    });
+    const aportacionInicial =
+      parseFloat(formData.get("aportacionInicial") as string) || 0;
+    const aportacionPeriodo =
+      parseFloat(formData.get("aportacionPeriodo") as string) || 0;
+    const frecuenciaPorAño =
+      parseInt(formData.get("frecuencia") as string) || 12;
+    const tasaAnual = parseFloat(formData.get("tasaAnual") as string) || 0;
+    const años = parseInt(formData.get("años") as string) || 0;
 
-    return values;
+    const tasaPorPeriodo = tasaAnual / 100 / frecuenciaPorAño;
+    const totalPeriodos = años * frecuenciaPorAño;
+
+    const resultadosPorAño: ResultadoAnual[] = [];
+
+    let saldo = aportacionInicial;
+    let totalAportado = aportacionInicial;
+
+    for (let periodo = 1; periodo <= totalPeriodos; periodo++) {
+      saldo = saldo * (1 + tasaPorPeriodo);
+      saldo += aportacionPeriodo;
+      totalAportado += aportacionPeriodo;
+
+      if (periodo % frecuenciaPorAño === 0) {
+        const añoActual = periodo / frecuenciaPorAño;
+        const interesesAcumulados = saldo - totalAportado;
+
+        resultadosPorAño.push({
+          año: añoActual,
+          totalAportado: totalAportado,
+          interesesAcumulados: interesesAcumulados,
+          valorTotal: saldo,
+        });
+      }
+    }
+
+    return resultadosPorAño;
   }
 
-  function logFormValues() {
-    const values = getFormValues();
-    console.log("📋 Valores del formulario:");
-
-    Object.entries(values).forEach(([key, value]) => {
-      console.log(`  ${key}: ${value}`);
-    });
-    console.log("-------------------");
+  function formatearMoneda(valor: number): string {
+    return new Intl.NumberFormat("es-ES", {
+      style: "currency",
+      currency: "EUR",
+      minimumFractionDigits: 2,
+    }).format(valor);
   }
 
-  form.addEventListener("input", () => {
-    logFormValues();
+  function reducirPuntosGrafica(resultados: ResultadoAnual[]) {
+    const totalAños = resultados.length;
+
+    if (totalAños <= 20) return resultados;
+    if (totalAños <= 40) {
+      return resultados.filter(
+        (_, index) => index % 2 === 0 || index === totalAños - 1,
+      );
+    }
+    if (totalAños <= 60) {
+      return resultados.filter(
+        (_, index) => index % 3 === 0 || index === totalAños - 1,
+      );
+    }
+    return resultados.filter(
+      (_, index) => index % 5 === 0 || index === totalAños - 1,
+    );
+  }
+
+  function generarBotonesPaginacion(
+    paginaActual: number,
+    totalPaginas: number,
+  ) {
+    const contenedor = document.getElementById("paginacionControles");
+    if (!contenedor) return;
+
+    let html = "";
+
+    html += `<button class="join-item btn btn-sm" id="btnPrimera" ${paginaActual === 1 ? "disabled" : ""}>«</button>`;
+    html += `<button class="join-item btn btn-sm" id="btnAnterior" ${paginaActual === 1 ? "disabled" : ""}>‹</button>`;
+
+    const maxBotones = 7;
+
+    if (totalPaginas <= maxBotones) {
+      for (let i = 1; i <= totalPaginas; i++) {
+        const activo = i === paginaActual ? "btn-active" : "";
+        html += `<button class="join-item btn btn-sm ${activo} btnPagina" data-pagina="${i}">${i}</button>`;
+      }
+    } else {
+      if (paginaActual <= 4) {
+        for (let i = 1; i <= 5; i++) {
+          const activo = i === paginaActual ? "btn-active" : "";
+          html += `<button class="join-item btn btn-sm ${activo} btnPagina" data-pagina="${i}">${i}</button>`;
+        }
+        html += `<button class="join-item btn btn-sm btn-disabled">...</button>`;
+        html += `<button class="join-item btn btn-sm btnPagina" data-pagina="${totalPaginas}">${totalPaginas}</button>`;
+      } else if (paginaActual >= totalPaginas - 3) {
+        html += `<button class="join-item btn btn-sm btnPagina" data-pagina="1">1</button>`;
+        html += `<button class="join-item btn btn-sm btn-disabled">...</button>`;
+        for (let i = totalPaginas - 4; i <= totalPaginas; i++) {
+          const activo = i === paginaActual ? "btn-active" : "";
+          html += `<button class="join-item btn btn-sm ${activo} btnPagina" data-pagina="${i}">${i}</button>`;
+        }
+      } else {
+        html += `<button class="join-item btn btn-sm btnPagina" data-pagina="1">1</button>`;
+        html += `<button class="join-item btn btn-sm btn-disabled">...</button>`;
+        for (let i = paginaActual - 1; i <= paginaActual + 1; i++) {
+          const activo = i === paginaActual ? "btn-active" : "";
+          html += `<button class="join-item btn btn-sm ${activo} btnPagina" data-pagina="${i}">${i}</button>`;
+        }
+        html += `<button class="join-item btn btn-sm btn-disabled">...</button>`;
+        html += `<button class="join-item btn btn-sm btnPagina" data-pagina="${totalPaginas}">${totalPaginas}</button>`;
+      }
+    }
+
+    html += `<button class="join-item btn btn-sm" id="btnSiguiente" ${paginaActual === totalPaginas ? "disabled" : ""}>›</button>`;
+    html += `<button class="join-item btn btn-sm" id="btnUltima" ${paginaActual === totalPaginas ? "disabled" : ""}>»</button>`;
+
+    contenedor.innerHTML = html;
+    agregarEventListenersPaginacion();
+  }
+
+  function agregarEventListenersPaginacion() {
+    document.getElementById("btnPrimera")?.addEventListener("click", () => {
+      paginaActual = 1;
+      actualizarTabla(paginaActual);
+    });
+
+    document.getElementById("btnAnterior")?.addEventListener("click", () => {
+      if (paginaActual > 1) {
+        paginaActual--;
+        actualizarTabla(paginaActual);
+      }
+    });
+
+    document.getElementById("btnSiguiente")?.addEventListener("click", () => {
+      const totalPaginas = Math.ceil(
+        todosLosResultados.length / resultadosPorPagina,
+      );
+      if (paginaActual < totalPaginas) {
+        paginaActual++;
+        actualizarTabla(paginaActual);
+      }
+    });
+
+    document.getElementById("btnUltima")?.addEventListener("click", () => {
+      const totalPaginas = Math.ceil(
+        todosLosResultados.length / resultadosPorPagina,
+      );
+      paginaActual = totalPaginas;
+      actualizarTabla(paginaActual);
+    });
+
+    document.querySelectorAll(".btnPagina").forEach((boton) => {
+      boton.addEventListener("click", (e) => {
+        const pagina = parseInt(
+          (e.target as HTMLElement).getAttribute("data-pagina")!,
+        );
+        paginaActual = pagina;
+        actualizarTabla(paginaActual);
+      });
+    });
+  }
+
+  function actualizarTabla(pagina: number) {
+    const inicio = (pagina - 1) * resultadosPorPagina;
+    const fin = inicio + resultadosPorPagina;
+    const resultadosPagina = todosLosResultados.slice(inicio, fin);
+
+    const tbody = document.getElementById("tablaResultados");
+    if (!tbody) return;
+
+    // ✅ Obtener año actual
+    const añoActual = new Date().getFullYear();
+
+    tbody.innerHTML = resultadosPagina
+      .map(
+        (resultado) => `
+    <tr>
+      <td>${añoActual + resultado.año}</td>
+      <td>${formatearMoneda(resultado.totalAportado)}</td>
+      <td>${formatearMoneda(resultado.interesesAcumulados)}</td>
+      <td class="font-bold">${formatearMoneda(resultado.valorTotal)}</td>
+    </tr>
+  `,
+      )
+      .join("");
+
+    const totalPaginas = Math.ceil(
+      todosLosResultados.length / resultadosPorPagina,
+    );
+
+    const paginaActualInfo = document.getElementById("paginaActualInfo");
+    const totalPaginasInfo = document.getElementById("totalPaginasInfo");
+
+    if (paginaActualInfo) paginaActualInfo.textContent = pagina.toString();
+    if (totalPaginasInfo)
+      totalPaginasInfo.textContent = totalPaginas.toString();
+
+    generarBotonesPaginacion(pagina, totalPaginas);
+  }
+
+  function actualizarResultados() {
+    try {
+      const resultados = calcularCrecimiento();
+
+      if (resultados.length === 0) return;
+
+      todosLosResultados = resultados;
+      paginaActual = 1;
+
+      const ultimoAño = resultados[resultados.length - 1];
+
+      const totalAportado = document.getElementById("totalAportado");
+      const interesesGanados = document.getElementById("interesesGanados");
+      const valorFinal = document.getElementById("valorFinal");
+
+      if (totalAportado)
+        totalAportado.textContent = formatearMoneda(ultimoAño.totalAportado);
+      if (interesesGanados)
+        interesesGanados.textContent = formatearMoneda(
+          ultimoAño.interesesAcumulados,
+        );
+      if (valorFinal)
+        valorFinal.textContent = formatearMoneda(ultimoAño.valorTotal);
+
+      actualizarTabla(paginaActual);
+
+      const chart = (window as any).investmentChart;
+      if (chart) {
+        const resultadosGrafica = reducirPuntosGrafica(resultados);
+
+        // ✅ Obtener año actual
+        const añoActual = new Date().getFullYear();
+
+        const categorias = resultadosGrafica.map((r) => `${añoActual + r.año}`);
+        const valoresConIntereses = resultadosGrafica.map((r) =>
+          Math.round(r.valorTotal),
+        );
+        const valoresSinIntereses = resultadosGrafica.map((r) =>
+          Math.round(r.totalAportado),
+        );
+
+        chart.updateOptions({
+          xaxis: {
+            categories: categorias,
+          },
+        });
+
+        chart.updateSeries([
+          {
+            name: "Sin Intereses",
+            data: valoresSinIntereses,
+          },
+          {
+            name: "Con Intereses",
+            data: valoresConIntereses,
+          },
+        ]);
+      }
+    } catch (error) {
+      console.error("Error en el cálculo:", error);
+    }
+  }
+
+  function debounce(func: Function, delay: number) {
+    let timeoutId: ReturnType<typeof setTimeout>;
+    return function (...args: any[]) {
+      clearTimeout(timeoutId);
+      timeoutId = setTimeout(() => func(...args), delay);
+    };
+  }
+
+  const actualizarResultadosDebounced = debounce(actualizarResultados, 300);
+
+  form.addEventListener("input", (e) => {
+    const target = e.target as HTMLElement;
+
+    if (
+      target.tagName === "SELECT" ||
+      (target.tagName === "INPUT" &&
+        (target as HTMLInputElement).type === "checkbox")
+    ) {
+      actualizarResultados();
+    } else {
+      actualizarResultadosDebounced();
+    }
   });
 
-  form.addEventListener("change", () => {
-    logFormValues();
+  document.addEventListener("DOMContentLoaded", () => {
+    actualizarResultados();
   });
 </script>
