@@ -1,0 +1,81 @@
+---
+// Parametros.astro
+---
+
+<fieldset
+  class="fieldset bg-base-200 border-base-300 rounded-box w-full border p-4">
+  <legend class="fieldset-legend">Datos Inversion</legend>
+  <form id="dynamicForm" class="space-y-4">
+    <div class="flex w-full flex-col">
+      <label class="label">Aportacion inicial</label>
+      <input
+        type="number"
+        name="aportacionInicial"
+        class="input"
+        placeholder="Aportacion inicial"
+      />
+    </div>
+
+    <div class="flex w-full gap-2">
+      <!-- //flex-col -->
+      <div class="rounded-box grid h-20 grow">
+        <label class="label">Aportacion por periodo</label>
+        <input
+          type="number"
+          name="aportacionPeriodo"
+          class="input"
+          placeholder="Aportacion por periodo"
+        />
+      </div>
+      <div class="rounded-box grid h-20 grow">
+        <label class="label">Frecuencia de aportacion</label>
+        <select class="select" name="frecuencia">
+          <option disabled selected>Elige la frecuencia</option>
+          <option value="1">Semanal</option>
+          <option value="2">Bisemanal</option>
+          <option value="4">Mensual</option>
+        </select>
+      </div>
+    </div>
+    <span class="label">Optional</span>
+    <div class="flex w-full flex-col">
+      <label class="label">
+        <input type="checkbox" class="checkbox checkbox-md" name="inflacion" />
+        ¿Incluir inflacion en el calculo?
+      </label>
+    </div>
+  </form>
+</fieldset>
+
+<script>
+  const form = document.getElementById("dynamicForm") as HTMLFormElement;
+
+  function getFormValues() {
+    const formData = new FormData(form);
+    const values: Record<string, string> = {};
+
+    formData.forEach((value, key) => {
+      values[key] = value as string;
+    });
+
+    return values;
+  }
+
+  function logFormValues() {
+    const values = getFormValues();
+    console.log("📋 Valores del formulario:");
+
+    Object.entries(values).forEach(([key, value]) => {
+      console.log(`  ${key}: ${value}`);
+    });
+    console.log("-------------------");
+  }
+
+  form.addEventListener("input", () => {
+    logFormValues();
+  });
+
+  form.addEventListener("change", () => {
+    logFormValues();
+  });
+</script>

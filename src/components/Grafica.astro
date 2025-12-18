@@ -1,0 +1,65 @@
+---
+// src/components/Grafica.astro
+---
+<fieldset class="fieldset bg-base-200 border-base-300 rounded-box w-full border p-4">
+  <div id="chart"></div>
+</fieldset>
+<script>
+  import ApexCharts from 'apexcharts';
+
+  const options = {
+    colors: ['#f861b4'],
+    series: [{
+      name: "Desktops",
+      data: [10, 41, 35, 51, 49, 62, 69, 91, 148]
+    }],
+   
+    chart: {
+      height: 350,
+      type: 'line',
+      zoom: {
+        enabled: false
+      }, 
+      toolbar: {
+        show: false 
+      },
+    },
+    dataLabels: {
+      enabled: false
+    },
+    stroke: {
+      curve: 'straight'
+    },
+    title: {
+      text: 'Product Trends by Month',
+      align: 'left'
+    },
+    grid: {
+      row: {
+        colors: ['#042e49', 'transparent'],
+        opacity: 0.5
+      },
+    },
+    xaxis: {
+      categories: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep'],
+    },
+    tooltip: {
+      theme: 'dark', // 'light' o 'dark'
+      style: {
+        fontSize: '14px',
+        fontFamily: 'inherit'
+      },
+      x: {
+        show: true
+      },
+      y: {
+        formatter: function(value) {
+          return value + " unidades"
+        }
+      }
+    }
+  };
+
+  const chart = new ApexCharts(document.querySelector("#chart"), options);
+  chart.render();
+</script>
