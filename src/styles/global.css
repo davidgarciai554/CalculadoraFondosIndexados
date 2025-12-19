@@ -5,12 +5,7 @@
 
 /* Estilos base del body */
 body {
-  @apply min-h-screen bg-base-100 text-base-content flex flex-col items-center p-4;
-}
-
-body > main,
-body > div {
-  @apply w-full max-w-[1600px] flex-grow;
+  @apply min-h-screen bg-base-100 text-base-content;
 }
 
 @plugin "daisyui/theme" {
@@ -46,4 +41,15 @@ body > div {
   --border: 1px;
   --depth: 1;
   --noise: 0;
+}
+
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+input[type="number"] {
+  -moz-appearance: textfield;
+  appearance: textfield;
 }

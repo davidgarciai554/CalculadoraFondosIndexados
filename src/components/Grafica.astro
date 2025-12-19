@@ -3,7 +3,7 @@
 ---
 
 <fieldset
-  class="fieldset bg-base-200 border-base-300 rounded-box w-full border p-4">
+  class="fieldset bg-base-200 border-base-300 rounded-box w-full border p-2 sm:p-4">
   <div id="chart"></div>
 </fieldset>
 
@@ -24,38 +24,37 @@
     ],
     chart: {
       height: 350,
-      type: "bar",
+      type: "line",
       zoom: {
         enabled: false,
       },
       toolbar: {
         show: false,
       },
-      foreColor: "#a1b1ff", // ✅ Color global de texto
+      foreColor: "#a1b1ff",
     },
-    plotOptions: {
-      bar: {
-        horizontal: false,
-        columnWidth: "55%",
-        endingShape: "rounded",
+    stroke: {
+      curve: "smooth",
+      width: 3,
+    },
+    markers: {
+      size: 0,
+      hover: {
+        size: 6,
       },
     },
     dataLabels: {
       enabled: false,
     },
-    stroke: {
-      show: true,
-      width: 2,
-      colors: ["transparent"],
-    },
     title: {
       text: "Crecimiento de la Inversión",
       align: "left",
       style: {
-        color: "#a1b1ff", // ✅ Color del título
+        color: "#a1b1ff",
       },
     },
     grid: {
+      borderColor: "#1c184b",
       row: {
         colors: ["#1c184b", "#16133d"],
         opacity: 1,
@@ -66,27 +65,29 @@
       title: {
         text: "Años",
         style: {
-          color: "#a1b1ff", // ✅ Color del título del eje X
+          color: "#a1b1ff",
         },
       },
       labels: {
         style: {
-          colors: "#a1b1ff", // ✅ Color de las etiquetas del eje X
+          colors: "#a1b1ff",
         },
+        rotate: -45,
+        rotateAlways: false,
       },
     },
     yaxis: {
       title: {
         text: "Valor (€)",
         style: {
-          color: "#a1b1ff", // ✅ Color del título del eje Y
+          color: "#a1b1ff",
         },
       },
       labels: {
         style: {
-          colors: ["#a1b1ff"], // ✅ Color de las etiquetas del eje Y
+          colors: ["#a1b1ff"],
         },
-        formatter: function (value) {
+        formatter: function (value: number) {
           return new Intl.NumberFormat("es-ES", {
             style: "currency",
             currency: "EUR",
@@ -99,7 +100,7 @@
       position: "top",
       horizontalAlign: "right",
       labels: {
-        colors: "#a1b1ff", // ✅ Color de la leyenda
+        colors: "#a1b1ff",
       },
     },
     tooltip: {
@@ -112,7 +113,7 @@
         show: true,
       },
       y: {
-        formatter: function (value) {
+        formatter: function (value: number) {
           return new Intl.NumberFormat("es-ES", {
             style: "currency",
             currency: "EUR",
@@ -121,6 +122,26 @@
         },
       },
     },
+    responsive: [
+      {
+        breakpoint: 640,
+        options: {
+          chart: {
+            height: 280,
+          },
+          xaxis: {
+            labels: {
+              rotate: -45,
+              rotateAlways: true,
+            },
+          },
+          legend: {
+            position: "bottom",
+            horizontalAlign: "center",
+          },
+        },
+      },
+    ],
   };
 
   const chart = new ApexCharts(document.querySelector("#chart"), options);

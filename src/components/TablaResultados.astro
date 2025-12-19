@@ -3,31 +3,29 @@
 ---
 
 <div class="card w-full bg-base-300 rounded-box overflow-hidden">
-    <div class="overflow-x-auto w-full">
-        <table class="table table-zebra">
-            <thead class="bg-base-200">
-                <tr>
-                    <th>Año</th>
-                    <th>Aportado</th>
-                    <th>Intereses</th>
-                    <th>Total</th>
-                </tr>
-            </thead>
-            <tbody id="tablaResultados">
-                <tr>
-                    <td colspan="4" class="text-center">
-                        Ingresa los datos para ver los resultados
-                    </td>
-                </tr>
-            </tbody>
-        </table>
-    </div>
+    <table class="table table-zebra w-full table-fixed">
+        <thead class="bg-base-200">
+            <tr>
+                <th class="w-1/6 text-xs sm:text-sm px-1 sm:px-4">Año</th>
+                <th class="w-1/4 text-xs sm:text-sm px-1 sm:px-4">Aportado</th>
+                <th class="w-1/4 text-xs sm:text-sm px-1 sm:px-4">Intereses</th>
+                <th class="w-1/3 text-xs sm:text-sm px-1 sm:px-4">Total</th>
+            </tr>
+        </thead>
+        <tbody id="tablaResultados" class="text-xs sm:text-sm">
+            <tr>
+                <td colspan="4" class="text-center">
+                    Ingresa los datos para ver los resultados
+                </td>
+            </tr>
+        </tbody>
+    </table>
 
     <!-- Controles de paginación -->
     <div
-        class="flex justify-between items-center p-4 bg-base-200 flex-wrap gap-2">
-        <div class="text-sm">
-            Mostrando página <span id="paginaActualInfo">0</span> de <span
+        class="flex justify-between items-center p-2 sm:p-4 bg-base-200 flex-wrap gap-2">
+        <div class="text-xs sm:text-sm">
+            Página <span id="paginaActualInfo">0</span> de <span
                 id="totalPaginasInfo">0</span
             >
         </div>
