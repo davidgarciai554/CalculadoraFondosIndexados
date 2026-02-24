@@ -15,13 +15,14 @@ import Grafica from "./Grafica.astro";
         </legend>
 
         <div class="form-control w-full">
-          <label class="label">
+          <label class="label" for="aportacionInicial">
             <span class="label-text text-sm sm:text-base"
               >Aportacion inicial</span
             >
           </label>
           <input
             type="number"
+            id="aportacionInicial"
             name="aportacionInicial"
             class="input input-bordered w-full input-sm sm:input-md"
             placeholder="Aportacion inicial"
@@ -34,13 +35,14 @@ import Grafica from "./Grafica.astro";
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
           <div class="form-control w-full">
-            <label class="label">
+            <label class="label" for="aportacionPeriodo">
               <span class="label-text text-sm sm:text-base"
                 >Aportacion por periodo</span
               >
             </label>
             <input
               type="number"
+              id="aportacionPeriodo"
               name="aportacionPeriodo"
               class="input input-bordered w-full input-sm sm:input-md"
               placeholder="Aportacion por periodo"
@@ -51,12 +53,13 @@ import Grafica from "./Grafica.astro";
             />
           </div>
           <div class="form-control w-full">
-            <label class="label">
+            <label class="label" for="frecuencia">
               <span class="label-text text-sm sm:text-base"
                 >Frecuencia de aportacion</span
               >
             </label>
             <select
+              id="frecuencia"
               class="select select-bordered w-full select-sm sm:select-md"
               name="frecuencia"
               required>
@@ -71,13 +74,14 @@ import Grafica from "./Grafica.astro";
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
           <div class="form-control">
-            <label class="label">
+            <label class="label" for="tasaAnual">
               <span class="label-text text-sm sm:text-base">Tasa anual</span>
             </label>
             <label
               class="input input-bordered input-sm sm:input-md flex items-center gap-2">
               <input
                 type="number"
+                id="tasaAnual"
                 class="grow"
                 placeholder="Tasa anual"
                 name="tasaAnual"
@@ -91,11 +95,12 @@ import Grafica from "./Grafica.astro";
             </label>
           </div>
           <div class="form-control w-full">
-            <label class="label">
+            <label class="label" for="años">
               <span class="label-text text-sm sm:text-base">Años</span>
             </label>
             <input
               type="number"
+              id="años"
               name="años"
               class="input input-bordered w-full input-sm sm:input-md"
               placeholder="Años"
@@ -110,9 +115,10 @@ import Grafica from "./Grafica.astro";
         <div class="divider my-2"></div>
 
         <div class="form-control">
-          <label class="label cursor-pointer justify-start gap-3 py-1">
+          <label class="label cursor-pointer justify-start gap-3 py-1" for="inflacion">
             <input
               type="checkbox"
+              id="inflacion"
               class="checkbox checkbox-sm sm:checkbox-md"
               name="inflacion"
             />
@@ -121,6 +127,43 @@ import Grafica from "./Grafica.astro";
             >
           </label>
         </div>
+
+        <div class="form-control" id="inflacionInputContainer" style="display: none;">
+          <label class="label" for="tasaInflacion">
+            <span class="label-text text-sm sm:text-base">Porcentaje de inflación anual</span>
+          </label>
+          <label
+            class="input input-bordered input-sm sm:input-md flex items-center gap-2">
+            <input
+              type="number"
+              id="tasaInflacion"
+              class="grow"
+              placeholder="Inflación anual"
+              name="tasaInflacion"
+              value="2"
+              min="0"
+              max="100"
+              step="0.1"
+            />
+            <span class="text-base-content/70 text-sm">%</span>
+          </label>
+        </div>
+
+        <div class="divider my-2"></div>
+
+        <div>
+          <div class="flex items-center justify-between mb-2">
+            <label class="label p-0">
+              <span class="label-text text-sm sm:text-base font-semibold">Aportaciones puntuales</span>
+            </label>
+            <button type="button" class="btn btn-sm btn-outline btn-primary" id="btnAñadirAportacionPuntual">
+              + Añadir
+            </button>
+          </div>
+          <div id="contenedorAportacionesPuntuales" class="flex flex-col gap-2">
+            <!-- Las aportaciones puntuales se añadirán aquí dinámicamente -->
+        </div>
+
       </fieldset>
     </form>
 
@@ -191,8 +234,69 @@ import Grafica from "./Grafica.astro";
       const tasaAnual = parseFloat(formData.get("tasaAnual") as string) || 0;
       const años = parseInt(formData.get("años") as string) || 0;
 
-      const tasaPorPeriodo = tasaAnual / 100 / frecuenciaPorAño;
+      const incluirInflacion = formData.get("inflacion") === "on";
+      const tasaInflacion = parseFloat(formData.get("tasaInflacion") as string) || 0;
+
+      let tasaEfectiva = tasaAnual;
+      if (incluirInflacion) {
+        tasaEfectiva -= tasaInflacion;
+      }
+
+      const tasaPorPeriodo = tasaEfectiva / 100 / frecuenciaPorAño;
       const totalPeriodos = años * frecuenciaPorAño;
+
+      // Leer aportaciones puntuales
+      const aportacionesPuntuales: { cantidad: number; periodoAcumulado: number }[] = [];
+      const inputsCantidad = document.querySelectorAll(".inputAportacionPuntual") as NodeListOf<HTMLInputElement>;
+      const selectsMes = document.querySelectorAll(".mesAportacionPuntual") as NodeListOf<HTMLSelectElement>;
+      const selectsAño = document.querySelectorAll(".añoAportacionPuntual") as NodeListOf<HTMLSelectElement>;
+      
+      const añoActual = new Date().getFullYear();
+
+      for (let i = 0; i < inputsCantidad.length; i++) {
+        const cantidad = parseFloat(inputsCantidad[i].value);
+        const mes = parseInt(selectsMes[i].value);
+        const año = parseInt(selectsAño[i].value);
+
+        if (!isNaN(cantidad) && !isNaN(mes) && !isNaN(año)) {
+          // El año y el mes se mapean al periodo correspondiente
+          const añosDiferencia = año - añoActual;
+          
+          let periodoAcumulado = 0;
+          
+          if (frecuenciaPorAño === 1) {
+             // Anual: La metemos al principio del año correspondiente
+             // Si es el año actual (diferencia 0), periodo 1
+             periodoAcumulado = añosDiferencia + 1; 
+          } else if (frecuenciaPorAño === 12) {
+             // Mensual: (Años transcurridos * 12) + Número de mes actual
+             // Suponemos que si estamos en el año 0 y pone mes 3, es el periodo 3.
+             periodoAcumulado = (añosDiferencia * 12) + mes;
+          } else if (frecuenciaPorAño === 52) {
+             // Semanal: Aproximamos a qué semana cae ese mes
+             const semanasPorMes = 52 / 12; // 4.33
+             periodoAcumulado = Math.round((añosDiferencia * 52) + (mes * semanasPorMes));
+          } else if (frecuenciaPorAño === 26) {
+             // Bisemanal
+             const quincenasPorMes = 26 / 12; // 2.16
+             periodoAcumulado = Math.round((añosDiferencia * 26) + (mes * quincenasPorMes));
+          }
+
+          // Ajuste: si el usuario pone un mes/año en el pasado o ya transcurrido, 
+          // lo forzaremos a que entre al menos en el periodo 1 (o lo podemos descartar, pero mejor que sume)
+          if (periodoAcumulado <= 0) {
+              periodoAcumulado = 1;
+          }
+
+          // Solo la añadimos si el periodo cae dentro del rango total de la inversión
+          if (periodoAcumulado <= totalPeriodos) {
+            aportacionesPuntuales.push({
+              cantidad: cantidad,
+              periodoAcumulado: periodoAcumulado
+            });
+          }
+        }
+      }
 
       const resultadosPorAño: ResultadoAnual[] = [];
 
@@ -204,14 +308,23 @@ import Grafica from "./Grafica.astro";
         // Aportación al PRINCIPIO del periodo (genera interés en este periodo)
         saldo += aportacionPeriodo;
         totalAportado += aportacionPeriodo;
+
+        // Comprobar si en este periodo hay aportaciones puntuales
+        const aportacionesEstePeriodo = aportacionesPuntuales.filter(ap => ap.periodoAcumulado === periodo);
+        for (const ap of aportacionesEstePeriodo) {
+          saldo += ap.cantidad;
+          totalAportado += ap.cantidad;
+        }
+
+        // Aplicamos el interés después de sumar todas las aportaciones del periodo
         saldo = saldo * (1 + tasaPorPeriodo);
 
         if (periodo % frecuenciaPorAño === 0) {
-          const añoActual = periodo / frecuenciaPorAño;
+          const añoActualIteracion = periodo / frecuenciaPorAño;
           const interesesAcumulados = saldo - totalAportado;
 
           resultadosPorAño.push({
-            año: añoActual,
+            año: añoActualIteracion,
             totalAportado: totalAportado,
             interesesAcumulados: interesesAcumulados,
             valorTotal: saldo,
@@ -465,6 +578,134 @@ import Grafica from "./Grafica.astro";
     });
 
     document.addEventListener("DOMContentLoaded", () => {
+      const checkboxInflacion = document.getElementById("inflacion") as HTMLInputElement;
+      const containerInflacion = document.getElementById("inflacionInputContainer");
+      
+      if (checkboxInflacion && containerInflacion) {
+        containerInflacion.style.display = checkboxInflacion.checked ? "block" : "none";
+        
+        checkboxInflacion.addEventListener("change", () => {
+          containerInflacion.style.display = checkboxInflacion.checked ? "block" : "none";
+        });
+      }
+
+      const btnAñadirAportacionPuntual = document.getElementById("btnAñadirAportacionPuntual");
+      const contenedorAportacionesPuntuales = document.getElementById("contenedorAportacionesPuntuales");
+
+      if (btnAñadirAportacionPuntual && contenedorAportacionesPuntuales) {
+        let contadorAportaciones = 0;
+
+        // Función para actualizar los selectores de año de las aportaciones existentes
+        const actualizarAñosDisponibles = () => {
+          const añosInput = document.getElementById("años") as HTMLInputElement;
+          const maxAños = añosInput ? parseInt(añosInput.value) : 10;
+          const añoActual = new Date().getFullYear();
+          const añoMaximo = añoActual + maxAños;
+
+          const selectsAño = contenedorAportacionesPuntuales.querySelectorAll(".añoAportacionPuntual") as NodeListOf<HTMLSelectElement>;
+
+          selectsAño.forEach((select) => {
+            const valorActual = parseInt(select.value);
+
+            // Si el año seleccionado actualmente es mayor que el nuevo límite, eliminar la fila entera
+            if (valorActual > añoMaximo) {
+              select.closest(".grid")?.remove();
+              return; // Pasar a la siguiente iteración
+            }
+
+            // Regenerar opciones del select
+            let opcionesAño = `<option value="" disabled ${isNaN(valorActual) ? "selected" : ""}>Año</option>`;
+            for (let año = añoActual; año <= añoMaximo; año++) {
+              const selected = año === valorActual ? "selected" : "";
+              opcionesAño += `<option value="${año}" ${selected}>${año}</option>`;
+            }
+            select.innerHTML = opcionesAño;
+          });
+          
+          actualizarResultadosDebounced();
+        };
+
+        // Escuchar cambios en el input de "Años" del formulario principal
+        const añosInput = document.getElementById("años");
+        if (añosInput) {
+           añosInput.addEventListener("input", actualizarAñosDisponibles);
+        }
+
+        btnAñadirAportacionPuntual.addEventListener("click", () => {
+          contadorAportaciones++;
+          const id = `aportacion-${contadorAportaciones}`;
+
+           // Obtener el año máximo del input de años para limitarlo
+          const maxAños = añosInput ? parseInt((añosInput as HTMLInputElement).value) : 10;
+          const añoActual = new Date().getFullYear();
+          const añoMaximo = añoActual + maxAños;
+          
+          let opcionesAño = `<option value="" disabled selected>Año</option>`;
+          for (let año = añoActual; año <= añoMaximo; año++) {
+            opcionesAño += `<option value="${año}">${año}</option>`;
+          }
+
+          const filaHtml = `
+            <div class="grid grid-cols-4 sm:grid-cols-12 gap-2 items-end bg-base-100 p-2 rounded-lg border border-base-300" id="${id}">
+              <div class="col-span-4 sm:col-span-3">
+                <label class="label py-1"><span class="label-text text-xs">Cantidad (€)</span></label>
+                <input type="number" class="input input-bordered input-sm w-full inputAportacionPuntual" placeholder="Ej: 1000" min="0" step="1" required>
+              </div>
+              <div class="col-span-2 sm:col-span-4">
+                <label class="label py-1"><span class="label-text text-xs">Mes</span></label>
+                <select class="select select-bordered select-sm w-full mesAportacionPuntual" required>
+                  <option value="" disabled selected>Mes</option>
+                  <option value="1">Enero</option>
+                  <option value="2">Febrero</option>
+                  <option value="3">Marzo</option>
+                  <option value="4">Abril</option>
+                  <option value="5">Mayo</option>
+                  <option value="6">Junio</option>
+                  <option value="7">Julio</option>
+                  <option value="8">Agosto</option>
+                  <option value="9">Septiembre</option>
+                  <option value="10">Octubre</option>
+                  <option value="11">Noviembre</option>
+                  <option value="12">Diciembre</option>
+                </select>
+              </div>
+              <div class="col-span-2 sm:col-span-4">
+                <label class="label py-1"><span class="label-text text-xs">Año</span></label>
+                <select class="select select-bordered select-sm w-full añoAportacionPuntual" required>
+                  ${opcionesAño}
+                </select>
+              </div>
+              <div class="col-span-4 sm:col-span-1 flex justify-end sm:justify-center">
+                <button type="button" class="btn btn-sm btn-square btn-error btnEliminarAportacion" aria-label="Eliminar aportación">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
+                </button>
+              </div>
+            </div>
+          `;
+
+          contenedorAportacionesPuntuales.insertAdjacentHTML("beforeend", filaHtml);
+
+          const filaAñadida = document.getElementById(id);
+          if (filaAñadida) {
+            const btnEliminar = filaAñadida.querySelector(".btnEliminarAportacion");
+            if (btnEliminar) {
+              btnEliminar.addEventListener("click", () => {
+                filaAñadida.remove();
+                // Trigger recalculation conceptually, doesn't do anything functional yet
+                actualizarResultadosDebounced();
+              });
+            }
+             
+            // Add event listeners to input fields to trigger recalculation when implemented
+            filaAñadida.querySelectorAll("input, select").forEach(input => {
+                input.addEventListener("input", () => {
+                    actualizarResultadosDebounced();
+                });
+            });
+          }
+        });
+      }
+
       actualizarResultados();
     });
   </script>
