@@ -1,0 +1,22 @@
+---
+import Layout from "../layouts/Layout.astro";
+import ObjetivoAhorro from "../components/ObjetivoAhorro.astro";
+---
+
+<Layout>
+  <main class="flex flex-col w-full gap-8">
+    <div class="flex flex-col items-center text-center max-w-3xl mx-auto px-4 pt-4 pb-2">
+      <h1 class="text-4xl md:text-5xl font-extrabold tracking-tight">
+        Objetivo de <span class="text-primary">Ahorros</span>
+      </h1>
+      <p class="text-lg text-base-content/75 mt-4 leading-relaxed">
+        Calcula exactamente cuándo alcanzarás tu meta financiera. Ingresa cuánto deseas ahorrar y tus aportaciones, y descubriremos el día en que tu esfuerzo dará frutos gracias al interés compuesto.
+      </p>
+    </div>
+    <div class="flex w-full flex-col items-center gap-4">
+      <div class="flex w-full md:w-2/3 flex-col gap-4 items-center">
+        <ObjetivoAhorro />
+      </div>
+    </div>
+  </main>
+</Layout>

@@ -1,0 +1,143 @@
+---
+// ObjetivoAhorro.astro
+---
+<div class="w-full max-w-4xl mx-auto px-2 py-3 sm:px-6 sm:py-6">
+  <div class="flex flex-col gap-4 sm:gap-6">
+    <form class="w-full" id="objetivoForm">
+      <fieldset class="fieldset bg-base-200 border-base-300 rounded-box w-full border p-2 sm:p-4 md:p-6 space-y-2 sm:space-y-4 mx-0">
+        <legend class="fieldset-legend text-base sm:text-lg font-semibold">Datos del Objetivo</legend>
+        
+        <div class="form-control w-full">
+          <label class="label" for="objetivoFinal"><span class="label-text text-sm sm:text-base">Objetivo Final (€)</span></label>
+          <input type="number" id="objetivoFinal" name="objetivoFinal" class="input input-bordered w-full input-sm sm:input-md" placeholder="Ej: 100000" value="100000" min="1" step="1" required />
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
+          <div class="form-control w-full">
+            <label class="label" for="capitalInicial"><span class="label-text text-sm sm:text-base">Capital Inicial (€)</span></label>
+            <input type="number" id="capitalInicial" name="capitalInicial" class="input input-bordered w-full input-sm sm:input-md" placeholder="Ej: 5000" value="0" min="0" step="1" required />
+          </div>
+          <div class="form-control w-full">
+            <label class="label" for="aportacionPeriodo"><span class="label-text text-sm sm:text-base">Aportación por periodo (€)</span></label>
+            <input type="number" id="aportacionPeriodo" name="aportacionPeriodo" class="input input-bordered w-full input-sm sm:input-md" placeholder="Ej: 200" value="200" min="1" step="1" required />
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
+          <div class="form-control w-full">
+            <label class="label" for="frecuencia"><span class="label-text text-sm sm:text-base">Frecuencia de aportación</span></label>
+            <select id="frecuencia" name="frecuencia" class="select select-bordered w-full select-sm sm:select-md" required>
+              <option value="52">Semanal</option>
+              <option value="26">Bisemanal</option>
+              <option value="12" selected>Mensual</option>
+              <option value="1">Anual</option>
+            </select>
+          </div>
+          <div class="form-control">
+            <label class="label" for="tasaAnual"><span class="label-text text-sm sm:text-base">Tasa anual (%)</span></label>
+            <label class="input input-bordered input-sm sm:input-md flex items-center gap-2">
+              <input type="number" id="tasaAnual" name="tasaAnual" class="grow" placeholder="Ej: 7" value="7" min="0" max="100" step="0.1" required />
+              <span class="text-base-content/70 text-sm">%</span>
+            </label>
+          </div>
+        </div>
+      </fieldset>
+    </form>
+
+    <div class="card bg-primary text-primary-content shadow-xl w-full mt-4">
+      <div class="card-body items-center text-center p-6 sm:p-8">
+        <h2 class="card-title text-xl md:text-2xl opacity-90">Alcanzarás tu objetivo el:</h2>
+        <p class="text-3xl sm:text-4xl md:text-5xl font-bold my-4 md:my-6 drop-shadow-md" id="fechaObjetivo">--/--/----</p>
+        <p class="text-base md:text-lg opacity-90" id="detalleObjetivo">Calculando...</p>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const form = document.getElementById("objetivoForm") as HTMLFormElement;
+    const fechaObjetivo = document.getElementById("fechaObjetivo");
+    const detalleObjetivo = document.getElementById("detalleObjetivo");
+
+    function calcularFechaObjetivo() {
+      const formData = new FormData(form);
+      
+      const objetivoFinal = parseFloat(formData.get("objetivoFinal") as string) || 0;
+      const capitalInicial = parseFloat(formData.get("capitalInicial") as string) || 0;
+      const aportacionPeriodo = parseFloat(formData.get("aportacionPeriodo") as string) || 0;
+      const frecuenciaPorAño = parseInt(formData.get("frecuencia") as string) || 12;
+      const tasaAnual = parseFloat(formData.get("tasaAnual") as string) || 0;
+
+      if (objetivoFinal <= capitalInicial) {
+        if(fechaObjetivo) fechaObjetivo.textContent = "¡Ya lo has logrado!";
+        if(detalleObjetivo) detalleObjetivo.textContent = "Tu capital inicial es mayor o igual a tu objetivo.";
+        return;
+      }
+
+      const tasaPorPeriodo = tasaAnual / 100 / frecuenciaPorAño;
+      
+      let saldo = capitalInicial;
+      let periodos = 0;
+
+      // Prevención de bucle infinito (por ejemplo, si aportación=0 y tasa=0)
+      if (aportacionPeriodo === 0 && (tasaAnual === 0 || capitalInicial === 0)) {
+        if(fechaObjetivo) fechaObjetivo.textContent = "Nunca";
+        if(detalleObjetivo) detalleObjetivo.textContent = "Sin aportaciones e intereses, no crecerá el capital.";
+        return;
+      }
+
+      const maxPeriodos = 12000; // límite seguro (1000 años mensual)
+      while (saldo < objetivoFinal && periodos < maxPeriodos) {
+        // Aportación al principio del periodo
+        saldo += aportacionPeriodo;
+        // Aplicamos interés
+        saldo = saldo * (1 + tasaPorPeriodo);
+        periodos++;
+      }
+
+      if (periodos >= maxPeriodos) {
+        if(fechaObjetivo) fechaObjetivo.textContent = "Demasiado tiempo";
+        if(detalleObjetivo) detalleObjetivo.textContent = "Tomará más de mil años alcanzar esta cifra.";
+        return;
+      }
+
+      // Calcular fecha exacta
+      const diasPorPeriodo = 365.25 / frecuenciaPorAño;
+      // Restamos 1 periodo porque la primera aportación se hace el día 0 (hoy)
+      const periodosTranscurridos = Math.max(0, periodos - 1);
+      const diasTotales = Math.ceil(periodosTranscurridos * diasPorPeriodo);
+      
+      const fechaActual = new Date();
+      const fechaFutura = new Date(fechaActual.getTime() + diasTotales * 24 * 60 * 60 * 1000);
+
+      const opcionesFecha: Intl.DateTimeFormatOptions = { 
+        year: 'numeric', 
+        month: 'long', 
+        day: 'numeric' 
+      };
+
+      if(fechaObjetivo) {
+        fechaObjetivo.textContent = fechaFutura.toLocaleDateString('es-ES', opcionesFecha);
+      }
+      
+      if(detalleObjetivo) {
+        const años = Math.floor(diasTotales / 365.25);
+        const meses = Math.floor((diasTotales % 365.25) / 30.44);
+        
+        let tiempoTexto = "";
+        if (años > 0) tiempoTexto += `${años} año${años > 1 ? 's' : ''}`;
+        if (años > 0 && meses > 0) tiempoTexto += " y ";
+        if (meses > 0 || años === 0) tiempoTexto += `${meses} mes${meses > 1 ? 'es' : ''}`;
+
+        // Si es 0 días (hoy mismo logramos el resto)
+        if (periodosTranscurridos === 0) {
+           detalleObjetivo.textContent = `Tu objetivo se cumple hoy mismo con la primera aportación.`;
+        } else {
+           detalleObjetivo.textContent = `Te tomará aproximadamente ${tiempoTexto} (${periodos} aportaciones).`;
+        }
+      }
+    }
+
+    form.addEventListener("input", calcularFechaObjetivo);
+    document.addEventListener("DOMContentLoaded", calcularFechaObjetivo);
+  </script>
+</div>

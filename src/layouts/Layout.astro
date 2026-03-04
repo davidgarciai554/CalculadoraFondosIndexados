@@ -11,7 +11,20 @@ import "../styles/global.css";
 		<meta name="generator" content={Astro.generator} />
 		<title>Inversion en fondos indexados</title>
 	</head>
-	<body class="bg-base-100 text-base-content">
-		<slot />
+	<body class="bg-base-100 text-base-content flex flex-col min-h-screen">
+		<nav class="navbar bg-base-300 shadow-md">
+			<div class="flex-1">
+				<a href="/" class="btn btn-ghost text-xl">Calculadora de Fondos</a>
+			</div>
+			<div class="flex-none">
+				<ul class="menu menu-horizontal px-1 font-semibold">
+					<li><a href="/">Inicio</a></li>
+					<li><a href="/objetivo">Objetivo de Ahorros</a></li>
+				</ul>
+			</div>
+		</nav>
+		<div class="flex-1 p-4 md:p-8">
+			<slot />
+		</div>
 	</body>
 </html>
