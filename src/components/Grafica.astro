@@ -3,7 +3,7 @@
 ---
 
 <fieldset
-  class="fieldset bg-base-200 border-base-300 rounded-box w-full border p-2 sm:p-4">
+  class="fieldset bg-base-200 border-base-300 rounded-box w-full max-w-full overflow-hidden border p-1 sm:p-4">
   <div id="chart"></div>
 </fieldset>
 
@@ -127,17 +127,37 @@
         breakpoint: 640,
         options: {
           chart: {
-            height: 280,
+            height: 300,
           },
           xaxis: {
             labels: {
               rotate: -45,
               rotateAlways: true,
+              style: {
+                fontSize: '9px'
+              }
             },
+          },
+          yaxis: {
+            title: {
+              text: undefined // Oculta el título "Valor (€)" en móvil para dar más espacio a la gráfica
+            },
+            labels: {
+              style: {
+                fontSize: '9px'
+              },
+              formatter: function (value: number) {
+                // Formatear a 'k' o 'M' para ahorrar espacio en móvil
+                if (value >= 1000000) return (value / 1000000).toFixed(1) + "M €";
+                if (value >= 1000) return (value / 1000).toFixed(0) + "k €";
+                return value.toString();
+              }
+            }
           },
           legend: {
             position: "bottom",
             horizontalAlign: "center",
+            fontSize: '12px'
           },
         },
       },

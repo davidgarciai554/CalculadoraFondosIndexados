@@ -28,10 +28,10 @@ La aplicación realiza proyecciones basadas en:
 
 Estamos trabajando continuamente para mejorar la herramienta. Las próximas actualizaciones incluirán:
 
-### 🎯 Calculadora de Objetivos de Ahorro
-- Capacidad para definir metas financieras específicas (ej. 🏠 comprar una casa, 🏖️ jubilación).
-- Configuración de plazos: **corto**, **mediano** y **largo** plazo.
-- Recomendación de aportaciones necesarias para alcanzar dichos objetivos.
+### ~~🎯 Calculadora de Objetivos de Ahorro~~ (Completado ✅)
+~~- Capacidad para definir metas financieras específicas (ej. 🏠 comprar una casa, 🏖️ jubilación).~~
+~~- Configuración de plazos: **corto**, **mediano** y **largo** plazo.~~
+~~- Recomendación de aportaciones necesarias para alcanzar dichos objetivos.~~
 
 ### 🧪 Simulador de Escenarios Financieros
 - Modelado de escenarios **"optimistas"** ☀️, **"pesimistas"** 🌧️ y **"neutrales"** ☁️.
