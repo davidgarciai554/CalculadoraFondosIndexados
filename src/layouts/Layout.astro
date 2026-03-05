@@ -18,8 +18,8 @@ import "../styles/global.css";
 			</div>
 			<div class="flex-none">
 				<ul class="menu menu-horizontal px-1 font-semibold">
-					<li><a href={import.meta.env.BASE_URL}>Inicio</a></li>
-					<li><a href={`${import.meta.env.BASE_URL}objetivo`}>Objetivo de Ahorros</a></li>
+					<li><a href={`${import.meta.env.BASE_URL}`}>Inicio</a></li>
+					<li><a href={`${import.meta.env.BASE_URL}/objetivo/`.replace(/\/\//g, "/")}>Objetivo de Ahorros</a></li>
 				</ul>
 			</div>
 		</nav>
