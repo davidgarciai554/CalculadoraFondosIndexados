@@ -466,10 +466,10 @@ import Grafica from "./Grafica.astro";
         .map(
           (resultado) => `
       <tr>
-        <td class="px-1 sm:px-4">${añoActual + resultado.año}</td>
-        <td class="px-1 sm:px-4">${formatearMoneda(resultado.totalAportado)}</td>
-        <td class="px-1 sm:px-4">${formatearMoneda(resultado.interesesAcumulados)}</td>
-        <td class="px-1 sm:px-4 font-bold">${formatearMoneda(resultado.valorTotal)}</td>
+        <td class="px-1 sm:px-4 text-center pl-2 sm:pl-6">${añoActual + resultado.año}</td>
+        <td class="px-1 sm:px-4 text-center pl-2 sm:pl-6">${formatearMoneda(resultado.totalAportado)}</td>
+        <td class="px-1 sm:px-4 text-center pl-2 sm:pl-6">${formatearMoneda(resultado.interesesAcumulados)}</td>
+        <td class="px-1 sm:px-4 font-bold text-center pl-2 sm:pl-6">${formatearMoneda(resultado.valorTotal)}</td>
       </tr>
     `,
         )
