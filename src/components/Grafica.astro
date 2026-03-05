@@ -10,8 +10,33 @@
 <script>
   import ApexCharts from "apexcharts";
 
+  // Función para obtener el valor hex de una variable de CSS (ej. oklch o hsl que daisyUI genera en rgb)
+  // En las versiones más recientes de Tailwind/DaisyUI v4, estos colores los recuperamos computados
+  function getThemeColor(variable) {
+    const el = document.documentElement;
+    const computed = getComputedStyle(el).getPropertyValue(variable).trim();
+    
+    // Si la variable de DaisyUI no está computada directamente en un formato que apexcharts entienda (hex/rgb/rgba)
+    // Apexcharts no soporta oklch nativamente en todos sus campos, por lo que creamos un elemento temporal
+    // para forzar al navegador a darnos el rgb computado del oklch.
+    const tempEl = document.createElement("div");
+    tempEl.style.color = `var(${variable})`;
+    document.body.appendChild(tempEl);
+    const rgbColor = getComputedStyle(tempEl).color;
+    document.body.removeChild(tempEl);
+    
+    return rgbColor || computed;
+  }
+
+  const colorPrimary = getThemeColor('--color-primary');
+  const colorSecondary = getThemeColor('--color-accent');
+  const colorText = getThemeColor('--color-base-content');
+  const colorGridLine = getThemeColor('--color-base-300');
+  const colorGridArea1 = "transparent";
+  const colorGridArea2 = getThemeColor('--color-base-200');
+
   const options = {
-    colors: ["#f861b4", "#ff8904"],
+    colors: [colorPrimary, colorSecondary],
     series: [
       {
         name: "Sin Intereses",
@@ -31,7 +56,7 @@
       toolbar: {
         show: false,
       },
-      foreColor: "#a1b1ff",
+      foreColor: colorText,
     },
     stroke: {
       curve: "smooth",
@@ -50,14 +75,14 @@
       text: "Crecimiento de la Inversión",
       align: "left",
       style: {
-        color: "#a1b1ff",
+        color: colorText,
       },
     },
     grid: {
-      borderColor: "#1c184b",
+      borderColor: colorGridLine,
       row: {
-        colors: ["#1c184b", "#16133d"],
-        opacity: 1,
+        colors: [colorGridArea1, colorGridArea2],
+        opacity: 0.5,
       },
     },
     xaxis: {
@@ -65,12 +90,12 @@
       title: {
         text: "Años",
         style: {
-          color: "#a1b1ff",
+          color: colorText,
         },
       },
       labels: {
         style: {
-          colors: "#a1b1ff",
+          colors: colorText,
         },
         rotate: -45,
         rotateAlways: false,
@@ -80,12 +105,12 @@
       title: {
         text: "Valor (€)",
         style: {
-          color: "#a1b1ff",
+          color: colorText,
         },
       },
       labels: {
         style: {
-          colors: ["#a1b1ff"],
+          colors: [colorText],
         },
         formatter: function (value: number) {
           return new Intl.NumberFormat("es-ES", {
@@ -100,7 +125,7 @@
       position: "top",
       horizontalAlign: "right",
       labels: {
-        colors: "#a1b1ff",
+        colors: colorText,
       },
     },
     tooltip: {
