@@ -1,23 +1,51 @@
 ---
 import Layout from "../layouts/Layout.astro";
-import Parametros from "../components/Parametros.astro";
-import Grafica from "../components/Grafica.astro";
 ---
 
 <Layout>
-  <main class="flex flex-col w-full gap-8">
-    <div class="flex flex-col items-center text-center max-w-3xl mx-auto px-4 pt-4 pb-2">
+  <main class="flex flex-col w-full gap-8 items-center justify-center pt-8 md:pt-16">
+    <div class="flex flex-col items-center text-center max-w-3xl mx-auto px-4">
       <h1 class="text-4xl md:text-5xl font-extrabold tracking-tight">
-        Simulador de <span class="text-primary">Inversiones</span>
+        Finanzas <span class="text-primary">Personales</span>
       </h1>
       <p class="text-lg text-base-content/75 mt-4 leading-relaxed">
-        Descubre el potencial de tu dinero a lo largo del tiempo. Esta herramienta te permite proyectar el crecimiento de tu capital, analizando el impacto del interés compuesto y tus aportaciones regulares para alcanzar tus metas financieras.
+        Gestiona y planifica tu futuro financiero. Elige una de las herramientas a continuación para comenzar.
       </p>
     </div>
-    <div class="flex w-full flex-col items-center gap-4">
-      <div class="flex w-full md:w-2/3 flex-col gap-4 items-center">
-        <Parametros />
-      </div>
+    <div class="flex w-full max-w-5xl flex-col items-center justify-center gap-8 md:flex-row px-4 mt-4">
+      
+      <!-- Card Calculadora -->
+      <a href={`${import.meta.env.BASE_URL}/calculadora/`.replace(/\/\//g, "/")} class="card bg-base-200 w-full md:w-96 shadow-xl hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 cursor-pointer no-underline text-base-content">
+        <div class="card-body items-center text-center">
+          <div class="p-4 bg-primary/10 rounded-full mb-2">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-8 h-8 text-primary">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 18L9 11.25l4.306 4.307a11.95 11.95 0 015.814-5.519l2.74-1.22m0 0l-5.94-2.28m5.94 2.28l-2.28 5.941" />
+            </svg>
+          </div>
+          <h2 class="card-title text-2xl font-bold">Calculadora de Fondos</h2>
+          <p class="mt-2 text-sm text-base-content/75">Simula el crecimiento de tus inversiones a largo plazo utilizando interés compuesto.</p>
+          <div class="card-actions justify-center mt-4 w-full">
+            <button class="btn btn-primary btn-outline w-full">Empezar a simular</button>
+          </div>
+        </div>
+      </a>
+
+      <!-- Card Objetivos -->
+      <a href={`${import.meta.env.BASE_URL}/objetivo/`.replace(/\/\//g, "/")} class="card bg-base-200 w-full md:w-96 shadow-xl hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 cursor-pointer no-underline text-base-content">
+        <div class="card-body items-center text-center">
+          <div class="p-4 bg-secondary/10 rounded-full mb-2">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-8 h-8 text-secondary">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v12m-3-2.818l.879.659c1.171.879 3.07.879 4.242 0 1.172-.879 1.172-2.303 0-3.182C13.536 12.219 12.768 12 12 12c-.725 0-1.45-.22-2.003-.659-1.106-.879-1.106-2.303 0-3.182s2.9-.879 4.006 0l.415.33M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+          </div>
+          <h2 class="card-title text-2xl font-bold">Objetivos de Ahorro</h2>
+          <p class="mt-2 text-sm text-base-content/75">Define tus metas de ahorro y descubre cuánto necesitas aportar para alcanzarlas.</p>
+          <div class="card-actions justify-center mt-4 w-full">
+            <button class="btn btn-secondary btn-outline w-full">Fijar un objetivo</button>
+          </div>
+        </div>
+      </a>
+
     </div>
   </main>
 </Layout>

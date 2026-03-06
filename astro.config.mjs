@@ -4,7 +4,7 @@ import tailwindcss from "@tailwindcss/vite";
 
 export default defineConfig({
   site: "https://davidgarciai554.github.io",
-  base: "/CalculadoraFondosIndexados",
+  base: "/CalculadoraFinanciera",
   trailingSlash: "always",
   vite: {
     plugins: [tailwindcss()],

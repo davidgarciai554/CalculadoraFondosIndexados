@@ -14,12 +14,13 @@ import "../styles/global.css";
 	<body class="bg-base-100 text-base-content flex flex-col min-h-screen">
 		<nav class="navbar bg-base-300 shadow-md">
 			<div class="flex-1">
-				<a href={import.meta.env.BASE_URL} class="btn btn-ghost text-xl">Calculadora de Fondos</a>
+				<a href={import.meta.env.BASE_URL} class="btn btn-ghost text-xl">Finanzas Personales</a>
 			</div>
 			<div class="flex-none">
 				<ul class="menu menu-horizontal px-1 font-semibold">
 					<li><a href={`${import.meta.env.BASE_URL}`}>Inicio</a></li>
-					<li><a href={`${import.meta.env.BASE_URL}/objetivo/`.replace(/\/\//g, "/")}>Objetivo de Ahorros</a></li>
+					<li><a href={`${import.meta.env.BASE_URL}/calculadora/`.replace(/\/\//g, "/")}>Calculadora</a></li>
+					<li><a href={`${import.meta.env.BASE_URL}/objetivo/`.replace(/\/\//g, "/")}>Objetivos</a></li>
 				</ul>
 			</div>
 		</nav>

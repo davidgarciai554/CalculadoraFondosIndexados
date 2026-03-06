@@ -1,21 +1,22 @@
 ---
 import Layout from "../layouts/Layout.astro";
-import ObjetivoAhorro from "../components/ObjetivoAhorro.astro";
+import Parametros from "../components/Parametros.astro";
+import Grafica from "../components/Grafica.astro";
 ---
 
 <Layout>
   <main class="flex flex-col w-full gap-8">
     <div class="flex flex-col items-center text-center max-w-3xl mx-auto px-4 pt-4 pb-2">
       <h1 class="text-4xl md:text-5xl font-extrabold tracking-tight">
-        Objetivo de <span class="text-secondary">Ahorros</span>
+        Simulador de <span class="text-primary">Inversiones</span>
       </h1>
       <p class="text-lg text-base-content/75 mt-4 leading-relaxed">
-        Calcula exactamente cuándo alcanzarás tu meta financiera. Ingresa cuánto deseas ahorrar y tus aportaciones, y descubriremos el día en que tu esfuerzo dará frutos gracias al interés compuesto.
+        Descubre el potencial de tu dinero a lo largo del tiempo. Esta herramienta te permite proyectar el crecimiento de tu capital, analizando el impacto del interés compuesto y tus aportaciones regulares para alcanzar tus metas financieras.
       </p>
     </div>
     <div class="flex w-full flex-col items-center gap-4">
       <div class="flex w-full md:w-2/3 flex-col gap-4 items-center">
-        <ObjetivoAhorro />
+        <Parametros />
       </div>
     </div>
   </main>
