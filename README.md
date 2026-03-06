@@ -1,6 +1,6 @@
 # 📈 Inversión en Fondos Indexados
 
-🌍 **[Visita la aplicación en vivo aquí](https://davidgarciai554.github.io/CalculadoraFondosIndexados/)**
+🌍 **[Visita la aplicación en vivo aquí](https://davidgarciai554.github.io/CalculadoraFinanciera/)**
 
 > ⚠️ **ADVERTENCIA** ⚠️  
 > **Esta aplicación proporciona estimaciones y proyecciones financieras basadas en los datos ingresados, pero NO constituye asesoramiento financiero profesional.**  
