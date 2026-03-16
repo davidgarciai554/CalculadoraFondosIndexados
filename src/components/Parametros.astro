@@ -77,7 +77,7 @@ import Grafica from "./Grafica.astro";
             <label class="label" for="tasaAnual">
               <span class="label-text text-sm sm:text-base">Tasa anual</span>
             </label>
-            <label
+            <div
               class="input input-bordered w-full input-sm sm:input-md flex items-center gap-2">
               <input
                 type="number"
@@ -92,7 +92,7 @@ import Grafica from "./Grafica.astro";
                 required
               />
               <span class="text-base-content/70 text-sm">%</span>
-            </label>
+            </div>
           </div>
           <div class="form-control w-full">
             <label class="label" for="años">
@@ -132,7 +132,7 @@ import Grafica from "./Grafica.astro";
           <label class="label" for="tasaInflacion">
             <span class="label-text text-sm sm:text-base">Porcentaje de inflación anual</span>
           </label>
-          <label
+          <div
             class="input input-bordered w-full input-sm sm:input-md flex items-center gap-2">
             <input
               type="number"
@@ -146,16 +146,99 @@ import Grafica from "./Grafica.astro";
               step="0.1"
             />
             <span class="text-base-content/70 text-sm">%</span>
+          </div>
+        </div>
+
+        <div class="divider my-2"></div>
+
+        <div class="form-control">
+          <label class="label cursor-pointer justify-start gap-3 py-1" for="crecimientoAportacion">
+            <input
+              type="checkbox"
+              id="crecimientoAportacion"
+              class="checkbox checkbox-sm sm:checkbox-md"
+              name="crecimientoAportacion"
+            />
+            <span class="label-text text-sm sm:text-base"
+              >Crecimiento de aportación</span
+            >
           </label>
+        </div>
+
+        <div id="crecimientoInputContainer" class="grid grid-cols-1 md:grid-cols-3 gap-3 sm:gap-4 mt-2" style="display: none;">
+          <div class="form-control w-full">
+            <label class="label" for="valorCrecimiento">
+              <span class="label-text text-sm sm:text-base">Valor</span>
+            </label>
+            <input
+              type="number"
+              id="valorCrecimiento"
+              class="input input-bordered w-full input-sm sm:input-md"
+              placeholder="Ej: 5"
+              name="valorCrecimiento"
+              value="5"
+              min="0"
+              step="0.01"
+            />
+          </div>
+          <div class="form-control w-full">
+            <label class="label" for="tipoCrecimiento">
+              <span class="label-text text-sm sm:text-base">Tipo</span>
+            </label>
+            <select
+              id="tipoCrecimiento"
+              class="select select-bordered w-full select-sm sm:select-md"
+              name="tipoCrecimiento">
+              <option value="porcentaje">% (Porcentaje)</option>
+              <option value="fijo">€ (Cantidad fija)</option>
+            </select>
+          </div>
+          <div class="form-control w-full">
+            <label class="label" for="frecuenciaCrecimiento">
+              <span class="label-text text-sm sm:text-base">Frecuencia</span>
+            </label>
+            <select
+              id="frecuenciaCrecimiento"
+              class="select select-bordered w-full select-sm sm:select-md"
+              name="frecuenciaCrecimiento">
+              <option value="1" selected>Anual</option>
+              <option value="12">Mensual</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="divider my-2"></div>
+
+        <div class="form-control">
+          <label class="label cursor-pointer justify-start gap-3 py-1" for="habilitarDivisa">
+            <input
+              type="checkbox"
+              id="habilitarDivisa"
+              class="checkbox checkbox-sm sm:checkbox-md"
+              name="habilitarDivisa"
+            />
+            <span class="label-text text-sm sm:text-base"
+              >Invertir en otra divisa (Aprox)</span
+            >
+          </label>
+        </div>
+
+        <div class="form-control w-full" id="divisaInputContainer" style="display: none;">
+          <label class="label" for="divisaSeleccionada">
+            <span class="label-text text-sm sm:text-base">Selecciona la divisa destino</span>
+          </label>
+          <select id="divisaSeleccionada" name="divisaSeleccionada" class="select select-bordered w-full select-sm sm:select-md">
+            <option value="USD" selected>USD - Dólar Estadounidense</option>
+          </select>
         </div>
 
         <div class="divider my-2"></div>
 
         <div>
           <div class="flex items-center justify-between mb-2">
-            <label class="label p-0">
+            <div class="label p-0">
               <span class="label-text text-sm sm:text-base font-semibold">Aportaciones puntuales</span>
-            </label>
+            </div>
             <button type="button" class="btn btn-sm btn-outline btn-primary" id="btnAñadirAportacionPuntual">
               + Añadir
             </button>
@@ -167,36 +250,40 @@ import Grafica from "./Grafica.astro";
       </fieldset>
     </form>
 
-    <!-- Stats -->
-    <div
-      class="stats stats-vertical lg:stats-horizontal shadow bg-base-200 w-full">
-      <div class="stat place-items-center lg:place-items-start py-3 sm:py-4">
+    <div id="zonaResultadosExportable" class="flex flex-col gap-4 sm:gap-6 w-full">
+      <!-- Stats -->
+      <div
+        class="stats stats-vertical lg:stats-horizontal shadow bg-base-200 w-full overflow-hidden">
+      <div class="stat place-items-center lg:place-items-start py-3 sm:py-4 px-2 sm:px-4 md:px-6">
         <div class="stat-title text-sm sm:text-base">Total Aportado</div>
         <div
-          class="stat-value text-2xl sm:text-3xl lg:text-4xl text-primary"
+          class="stat-value text-xl sm:text-2xl lg:text-3xl text-primary whitespace-normal break-all sm:break-words"
           id="totalAportado">
           €0
         </div>
+        <div class="text-sm font-semibold text-base-content/50 mt-1 hidden" id="totalAportadoEuros"></div>
         <div class="stat-desc text-xs sm:text-sm">Capital invertido</div>
       </div>
 
-      <div class="stat place-items-center lg:place-items-start py-3 sm:py-4">
+      <div class="stat place-items-center lg:place-items-start py-3 sm:py-4 px-2 sm:px-4 md:px-6">
         <div class="stat-title text-sm sm:text-base">Intereses Ganados</div>
         <div
-          class="stat-value text-2xl sm:text-3xl lg:text-4xl text-secondary"
+          class="stat-value text-xl sm:text-2xl lg:text-3xl text-secondary whitespace-normal break-all sm:break-words"
           id="interesesGanados">
           €0
         </div>
+        <div class="text-sm font-semibold text-base-content/50 mt-1 hidden" id="interesesGanadosEuros"></div>
         <div class="stat-desc text-xs sm:text-sm">Rendimiento generado</div>
       </div>
 
-      <div class="stat place-items-center lg:place-items-start py-3 sm:py-4">
+      <div class="stat place-items-center lg:place-items-start py-3 sm:py-4 px-2 sm:px-4 md:px-6">
         <div class="stat-title text-sm sm:text-base">Valor Final</div>
         <div
-          class="stat-value text-2xl sm:text-3xl lg:text-4xl text-accent"
+          class="stat-value text-xl sm:text-2xl lg:text-3xl text-accent whitespace-normal break-all sm:break-words"
           id="valorFinal">
           €0
         </div>
+        <div class="text-sm font-semibold text-base-content/50 mt-1 hidden" id="valorFinalEuros"></div>
         <div class="stat-desc text-xs sm:text-sm">Total acumulado</div>
       </div>
     </div>
@@ -206,6 +293,22 @@ import Grafica from "./Grafica.astro";
 
     <!-- Tabla -->
     <TablaResultados />
+    </div>
+
+    <div class="w-full flex justify-center gap-2 mt-4 px-1" data-html2canvas-ignore="true">
+      <button type="button" class="btn btn-outline btn-secondary btn-sm" id="btnExportarPDF">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1 sm:mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+        </svg>
+        Exportar PDF
+      </button>
+      <button type="button" class="btn btn-outline btn-accent btn-sm" id="btnExportarCSV">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1 sm:mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+        </svg>
+        Exportar CSV
+      </button>
+    </div>
   </div>
 
   <script>
@@ -221,6 +324,10 @@ import Grafica from "./Grafica.astro";
     let paginaActual = 1;
     const resultadosPorPagina = 10;
     let todosLosResultados: ResultadoAnual[] = [];
+    
+    // Variables de contexto para divisa global
+    let divisaActualContexto = "EUR";
+    let tasaCambioActualContexto = 1;
 
     function calcularCrecimiento() {
       const formData = new FormData(form);
@@ -244,6 +351,13 @@ import Grafica from "./Grafica.astro";
 
       const tasaPorPeriodo = tasaEfectiva / 100 / frecuenciaPorAño;
       const totalPeriodos = años * frecuenciaPorAño;
+
+      // Crecimiento de aportacion
+      const aplicarCrecimientoObj = form.querySelector("#crecimientoAportacion") as HTMLInputElement;
+      const incluirCrecimiento = aplicarCrecimientoObj?.checked;
+      const valorCrecimiento = parseFloat(formData.get("valorCrecimiento") as string) || 0;
+      const tipoCrecimiento = formData.get("tipoCrecimiento") as string || "porcentaje";
+      const frecuenciaCrecimiento = parseInt(formData.get("frecuenciaCrecimiento") as string) || 1;
 
       // Leer aportaciones puntuales
       const aportacionesPuntuales: { cantidad: number; periodoAcumulado: number }[] = [];
@@ -304,10 +418,35 @@ import Grafica from "./Grafica.astro";
       let saldo = aportacionInicial * (1 + tasaPorPeriodo);
       let totalAportado = aportacionInicial;
 
+      let aportacionActual = aportacionPeriodo;
+      let lastGrowthYear = Math.ceil(1 / frecuenciaPorAño);
+      let lastGrowthMonth = Math.ceil(1 / (frecuenciaPorAño / 12));
+
       for (let periodo = 1; periodo <= totalPeriodos; periodo++) {
+        const currentYear = Math.ceil(periodo / frecuenciaPorAño);
+        const currentMonth = Math.ceil(periodo / (frecuenciaPorAño / 12));
+
+        if (incluirCrecimiento && periodo > 1) {
+          if (frecuenciaCrecimiento === 1) {
+            if (currentYear > lastGrowthYear) {
+              aportacionActual = tipoCrecimiento === "porcentaje" 
+                ? aportacionActual * (1 + (valorCrecimiento / 100)) 
+                : aportacionActual + valorCrecimiento;
+              lastGrowthYear = currentYear;
+            }
+          } else if (frecuenciaCrecimiento === 12) {
+            if (currentMonth > lastGrowthMonth) {
+               aportacionActual = tipoCrecimiento === "porcentaje" 
+                 ? aportacionActual * (1 + (valorCrecimiento / 100)) 
+                 : aportacionActual + valorCrecimiento;
+               lastGrowthMonth = currentMonth;
+            }
+          }
+        }
+
         // Aportación al PRINCIPIO del periodo (genera interés en este periodo)
-        saldo += aportacionPeriodo;
-        totalAportado += aportacionPeriodo;
+        saldo += aportacionActual;
+        totalAportado += aportacionActual;
 
         // Comprobar si en este periodo hay aportaciones puntuales
         const aportacionesEstePeriodo = aportacionesPuntuales.filter(ap => ap.periodoAcumulado === periodo);
@@ -335,12 +474,20 @@ import Grafica from "./Grafica.astro";
       return resultadosPorAño;
     }
 
-    function formatearMoneda(valor: number): string {
+    function formatearMoneda(valorOrigenEnEuros: number, forzarEuro: boolean = false): string {
+      let valorFinal = valorOrigenEnEuros;
+      let divisaAUsar = "EUR";
+
+      if (!forzarEuro && divisaActualContexto !== "EUR") {
+         valorFinal = valorOrigenEnEuros * tasaCambioActualContexto;
+         divisaAUsar = divisaActualContexto;
+      }
+
       return new Intl.NumberFormat("es-ES", {
         style: "currency",
-        currency: "EUR",
+        currency: divisaAUsar,
         minimumFractionDigits: 2,
-      }).format(valor);
+      }).format(valorFinal);
     }
 
     function reducirPuntosGrafica(resultados: ResultadoAnual[]) {
@@ -491,6 +638,21 @@ import Grafica from "./Grafica.astro";
 
     function actualizarResultados() {
       try {
+        // Evaluar divisa al refrescar resultados
+        const checkboxDivisa = document.getElementById("habilitarDivisa") as HTMLInputElement;
+        const selectDivisa = document.getElementById("divisaSeleccionada") as HTMLSelectElement;
+        
+        divisaActualContexto = "EUR";
+        tasaCambioActualContexto = 1;
+        
+        if (checkboxDivisa && checkboxDivisa.checked && tasasDeCambio) {
+          const seleccion = selectDivisa ? selectDivisa.value : "EUR";
+          if (tasasDeCambio[seleccion]) {
+            divisaActualContexto = seleccion;
+            tasaCambioActualContexto = tasasDeCambio[seleccion];
+          }
+        }
+
         const resultados = calcularCrecimiento();
 
         if (resultados.length === 0) return;
@@ -513,6 +675,24 @@ import Grafica from "./Grafica.astro";
         if (valorFinal)
           valorFinal.textContent = formatearMoneda(ultimoAño.valorTotal);
 
+        const modulosEuro = [
+          {id: "totalAportadoEuros", valorEuro: ultimoAño.totalAportado},
+          {id: "interesesGanadosEuros", valorEuro: ultimoAño.interesesAcumulados},
+          {id: "valorFinalEuros", valorEuro: ultimoAño.valorTotal}
+        ];
+
+        modulosEuro.forEach(sub => {
+          const el = document.getElementById(sub.id);
+          if (el) {
+             if (divisaActualContexto !== "EUR") {
+                el.textContent = `(${formatearMoneda(sub.valorEuro, true)})`;
+                el.classList.remove("hidden");
+             } else {
+                el.classList.add("hidden");
+             }
+          }
+        });
+
         actualizarTabla(paginaActual);
 
         const chart = (window as any).investmentChart;
@@ -524,17 +704,43 @@ import Grafica from "./Grafica.astro";
           const categorias = resultadosGrafica.map(
             (r) => `${añoActual + r.año}`,
           );
+          const factorConversion = divisaActualContexto !== "EUR" ? tasaCambioActualContexto : 1;
           const valoresConIntereses = resultadosGrafica.map((r) =>
-            Math.round(r.valorTotal),
+            Math.round(r.valorTotal * factorConversion),
           );
           const valoresSinIntereses = resultadosGrafica.map((r) =>
-            Math.round(r.totalAportado),
+            Math.round(r.totalAportado * factorConversion),
           );
 
           chart.updateOptions({
             xaxis: {
               categories: categorias,
             },
+            yaxis: {
+              title: {
+                text: "Valor (" + divisaActualContexto + ")"
+              },
+              labels: {
+                formatter: function (value: number) {
+                  return new Intl.NumberFormat("es-ES", {
+                    style: "currency",
+                    currency: divisaActualContexto,
+                    minimumFractionDigits: 0,
+                  }).format(value);
+                }
+              }
+            },
+            tooltip: {
+              y: {
+                formatter: function (value: number) {
+                  return new Intl.NumberFormat("es-ES", {
+                    style: "currency",
+                    currency: divisaActualContexto,
+                    minimumFractionDigits: 2,
+                  }).format(value);
+                }
+              }
+            }
           });
 
           chart.updateSeries([
@@ -548,12 +754,6 @@ import Grafica from "./Grafica.astro";
             },
           ]);
         }
-
-        imprimirResultadosDivisas(
-          ultimoAño.totalAportado, 
-          ultimoAño.interesesAcumulados, 
-          ultimoAño.valorTotal
-        );
 
       } catch (error) {
         console.error("Error en el cálculo:", error);
@@ -575,27 +775,55 @@ import Grafica from "./Grafica.astro";
         const response = await fetch('https://api.frankfurter.dev/v1/latest?base=EUR');
         const data = await response.json();
         tasasDeCambio = data.rates;
-        console.log("Tasas de cambio cargadas:", tasasDeCambio);
+        
+        const selectDivisa = document.getElementById("divisaSeleccionada") as HTMLSelectElement;
+        if (selectDivisa && tasasDeCambio) {
+          selectDivisa.innerHTML = "";
+          const divisasPopulares: Record<string, string> = {
+            "AUD": "Dólar Australiano",
+            "BGN": "Lev Búlgaro",
+            "BRL": "Real Brasileño",
+            "CAD": "Dólar Canadiense",
+            "CHF": "Franco Suizo",
+            "CNY": "Yuan Chino",
+            "CZK": "Corona Checa",
+            "DKK": "Corona Danesa",
+            "GBP": "Libra Esterlina",
+            "HKD": "Dólar de Hong Kong",
+            "HUF": "Forinto Húngaro",
+            "IDR": "Rupia Indonesia",
+            "ILS": "Nuevo Séquel Israelí",
+            "INR": "Rupia India",
+            "ISK": "Corona Islandesa",
+            "JPY": "Yen Japonés",
+            "KRW": "Won Surcoreano",
+            "MXN": "Peso Mexicano",
+            "MYR": "Ringgit Malayo",
+            "NOK": "Corona Noruega",
+            "NZD": "Dólar Neozelandés",
+            "PHP": "Peso Filipino",
+            "PLN": "Zloty Polaco",
+            "RON": "Leu Rumano",
+            "SEK": "Corona Sueca",
+            "SGD": "Dólar Singapurense",
+            "THB": "Baht Tailandés",
+            "TRY": "Lira Turca",
+            "USD": "Dólar Estadounidense",
+            "ZAR": "Rand Sudafricano"
+          };
+          for (const currency in tasasDeCambio) {
+            const opt = document.createElement("option");
+            opt.value = currency;
+            // Name mapping combined if found, else just currency code
+            opt.textContent = divisasPopulares[currency] ? `${currency} - ${divisasPopulares[currency]}` : currency;
+            selectDivisa.appendChild(opt);
+          }
+          selectDivisa.value = "USD"; // Default
+        }
+        actualizarResultados(); // Aplica si estaban recargando la página con checkbox on
       } catch (error) {
         console.error("Error al obtener las tasas de cambio:", error);
       }
-    }
-
-    function imprimirResultadosDivisas(totalAportado: number, intereses: number, final: number) {
-      if (!tasasDeCambio) return;
-      
-      const divisasInteres = ["USD", "GBP", "JPY", "CHF"];
-      console.log("--- Resultados en otras divisas ---");
-      divisasInteres.forEach(divisa => {
-        if (tasasDeCambio && tasasDeCambio[divisa]) {
-          const tasa = tasasDeCambio[divisa];
-          console.log(`${divisa}:`);
-          console.log(`  Total Aportado: ${(totalAportado * tasa).toFixed(2)}`);
-          console.log(`  Intereses: ${(intereses * tasa).toFixed(2)}`);
-          console.log(`  Valor Final: ${(final * tasa).toFixed(2)}`);
-        }
-      });
-      console.log("-----------------------------------");
     }
 
     const actualizarResultadosDebounced = debounce(actualizarResultados, 300);
@@ -625,6 +853,29 @@ import Grafica from "./Grafica.astro";
         
         checkboxInflacion.addEventListener("change", () => {
           containerInflacion.style.display = checkboxInflacion.checked ? "block" : "none";
+        });
+      }
+
+      const checkboxCrecimiento = document.getElementById("crecimientoAportacion") as HTMLInputElement;
+      const containerCrecimiento = document.getElementById("crecimientoInputContainer");
+
+      if (checkboxCrecimiento && containerCrecimiento) {
+        containerCrecimiento.style.display = checkboxCrecimiento.checked ? "grid" : "none";
+        
+        checkboxCrecimiento.addEventListener("change", () => {
+          containerCrecimiento.style.display = checkboxCrecimiento.checked ? "grid" : "none";
+        });
+      }
+
+      // Handler para divisa
+      const checkboxDivisa = document.getElementById("habilitarDivisa") as HTMLInputElement;
+      const containerDivisa = document.getElementById("divisaInputContainer");
+
+      if (checkboxDivisa && containerDivisa) {
+        containerDivisa.style.display = checkboxDivisa.checked ? "block" : "none";
+        checkboxDivisa.addEventListener("change", () => {
+          containerDivisa.style.display = checkboxDivisa.checked ? "block" : "none";
+          // We trigger updating stats. form input listener normally does this but let's be explicit
         });
       }
 
@@ -687,12 +938,12 @@ import Grafica from "./Grafica.astro";
           const filaHtml = `
             <div class="grid grid-cols-4 sm:grid-cols-12 gap-2 items-end bg-base-100 p-2 rounded-lg border border-base-300" id="${id}">
               <div class="col-span-4 sm:col-span-3">
-                <label class="label py-1"><span class="label-text text-xs">Cantidad (€)</span></label>
-                <input type="number" class="input input-bordered input-sm w-full inputAportacionPuntual" placeholder="Ej: 1000" min="0" step="1" required>
+                <label class="label py-1" for="cantidad-${id}"><span class="label-text text-xs">Cantidad (€)</span></label>
+                <input type="number" id="cantidad-${id}" class="input input-bordered input-sm w-full inputAportacionPuntual" placeholder="Ej: 1000" min="0" step="1" required>
               </div>
               <div class="col-span-2 sm:col-span-4">
-                <label class="label py-1"><span class="label-text text-xs">Mes</span></label>
-                <select class="select select-bordered select-sm w-full mesAportacionPuntual" required>
+                <label class="label py-1" for="mes-${id}"><span class="label-text text-xs">Mes</span></label>
+                <select id="mes-${id}" class="select select-bordered select-sm w-full mesAportacionPuntual" required>
                   <option value="" disabled selected>Mes</option>
                   <option value="1">Enero</option>
                   <option value="2">Febrero</option>
@@ -709,9 +960,9 @@ import Grafica from "./Grafica.astro";
                 </select>
               </div>
               <div class="col-span-2 sm:col-span-4">
-                <label class="label py-1"><span class="label-text text-xs">Año</span></label>
-                <select class="select select-bordered select-sm w-full añoAportacionPuntual" required>
-                  ${opcionesAño}
+                <label class="label py-1" for="año-${id}"><span class="label-text text-xs">Año</span></label>
+                <select id="año-${id}" class="select select-bordered select-sm w-full añoAportacionPuntual" required>
+                  \${opcionesAño}
                 </select>
               </div>
               <div class="col-span-4 sm:col-span-1 flex justify-end sm:justify-center">
@@ -741,6 +992,219 @@ import Grafica from "./Grafica.astro";
                     actualizarResultadosDebounced();
                 });
             });
+          }
+        });
+      }
+
+      // Lógica de exportación a CSV
+      const btnExportarCSV = document.getElementById("btnExportarCSV");
+      if (btnExportarCSV) {
+        btnExportarCSV.addEventListener("click", () => {
+          if (todosLosResultados.length === 0) return;
+
+          const añoActual = new Date().getFullYear();
+          
+          // Usamos punto y coma para compatibilidad con Excel local en España
+          const headers = ["Año", "Total Aportado (€)", "Intereses Ganados (€)", "Valor Final (€)"];
+          const csvRows = [headers.join(";")];
+
+          todosLosResultados.forEach(row => {
+            const año = añoActual + row.año;
+            // Excel español espera números con coma
+            const aportado = row.totalAportado.toFixed(2).replace('.', ',');
+            const intereses = row.interesesAcumulados.toFixed(2).replace('.', ',');
+            const total = row.valorTotal.toFixed(2).replace('.', ',');
+            
+            // Rodeamos con comillas por si acaso
+            csvRows.push([año, `"${aportado}"`, `"${intereses}"`, `"${total}"`].join(";"));
+          });
+
+          // UTF-8 BOM para que Excel detecte bien los caracteres (símbolo del euro, tildes, etc.)
+          const csvContent = "\uFEFF" + csvRows.join("\n");
+          const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+          const url = URL.createObjectURL(blob);
+          
+          const link = document.createElement("a");
+          link.setAttribute("href", url);
+          link.setAttribute("download", `proyeccion_fondos_${añoActual}.csv`);
+          document.body.appendChild(link);
+          
+          link.click();
+          
+          document.body.removeChild(link);
+          URL.revokeObjectURL(url);
+        });
+      }
+
+      // Lógica de exportación a PDF
+      const btnExportarPDF = document.getElementById("btnExportarPDF");
+      if (btnExportarPDF) {
+        btnExportarPDF.addEventListener("click", async () => {
+          if (todosLosResultados.length === 0) return;
+          
+          btnExportarPDF.classList.add("btn-disabled");
+          const textoOriginal = btnExportarPDF.innerHTML;
+          btnExportarPDF.innerHTML = '<span class="loading loading-spinner loading-sm"></span><span class="ml-2">Generando...</span>';
+          
+          try {
+            // Importar jspdf-autotable dinámicamente si no está (aunque ya está en package.json, Astro lo empaquetará)
+            const { jsPDF } = await import("jspdf");
+            const autoTable = (await import("jspdf-autotable")).default;
+
+            const pdf = new jsPDF('p', 'mm', 'a4');
+            const añoActual = new Date().getFullYear();
+            
+            // Configurar titulo
+            pdf.setFontSize(18);
+            pdf.setTextColor(40, 40, 40);
+            pdf.text("Proyección de Fondos Indexados", 14, 22);
+            
+            pdf.setFontSize(11);
+            pdf.setTextColor(100, 100, 100);
+            pdf.text(`Generado el: ${new Date().toLocaleDateString('es-ES')}`, 14, 30);
+            
+            // Añadir resumen estadístico
+            const ultimoAño = todosLosResultados[todosLosResultados.length - 1];
+            pdf.setFontSize(12);
+            pdf.setTextColor(60, 60, 60);
+            pdf.text(`Total Aportado: ${formatearMoneda(ultimoAño.totalAportado)}`, 14, 42);
+            pdf.text(`Intereses Ganados: ${formatearMoneda(ultimoAño.interesesAcumulados)}`, 14, 49);
+            pdf.setFont("helvetica", "bold");
+            pdf.setTextColor(0, 150, 136); // Color acento
+            pdf.text(`Valor Final Estimado: ${formatearMoneda(ultimoAño.valorTotal)}`, 14, 56);
+            pdf.setFont("helvetica", "normal");
+            
+            // --- DIBUJAR GRÁFICA DE TARTA (PIE CHART) ---
+            const centerX = 150; // Posición X del centro de la tarta
+            const centerY = 45;  // Posición Y del centro de la tarta
+            const radius = 20;   // Radio de la tarta
+            
+            const totalValue = ultimoAño.valorTotal > 0 ? ultimoAño.valorTotal : 1;
+            const aportadoPorcentaje = ultimoAño.totalAportado / totalValue;
+            // Para evitar problemas matemáticos si hay pérdidas o valores extraños
+            const interesesPorcentaje = Math.max(0, 1 - aportadoPorcentaje);
+            
+            // Ángulos en radianes
+            const startAngle1 = 0;
+            const endAngle1 = aportadoPorcentaje * 2 * Math.PI;
+            const startAngle2 = endAngle1;
+            const endAngle2 = 2 * Math.PI;
+
+            // Función para dibujar un sector circular (wedge)
+            const drawWedge = (startAngle: number, endAngle: number, color: number[]) => {
+              // Set fill color
+              pdf.setFillColor(color[0], color[1], color[2]);
+              
+              // Empezar el path desde el centro
+              const cx = centerX;
+              const cy = centerY;
+              
+              const points = [];
+              const steps = 30; // Suavidad de la curva
+              const stepAngle = (endAngle - startAngle) / steps;
+              
+              // No es un true path de bezier, así que usamos un polígono con muchos puntos
+              for (let i = 0; i <= steps; i++) {
+                const angle = startAngle + (i * stepAngle);
+                points.push({
+                  x: cx + (radius * Math.cos(angle)),
+                  y: cy + (radius * Math.sin(angle))
+                });
+              }
+
+              // Dibujar construyendo forma
+              const lines = [];
+              // Primer punto a dibujar es el primero del arco (desde donde cortaría al centro)
+              // Pero las líneas json en jsPDF.lines() son offsets relativas
+              for(let i=1; i<points.length; i++){
+                lines.push([points[i].x - points[i-1].x, points[i].y - points[i-1].y]);
+              }
+              // Regresar al centro
+              lines.push([cx - points[points.length-1].x, cy - points[points.length-1].y]);
+              
+              // Invocar las líneas. jsPDF.lines(lines, startX, startY, scale, style, closed)
+              pdf.lines(lines, points[0].x, points[0].y, [1, 1], 'F', true);
+            };
+
+            // Dibujar Sector 1: Aportado (Azul)
+            if (aportadoPorcentaje > 0) {
+              drawWedge(startAngle1, endAngle1, [30, 41, 59]); // Estilo dark modern
+            }
+            // Dibujar Sector 2: Intereses (Verde acento)
+            if (interesesPorcentaje > 0) {
+              drawWedge(startAngle2, endAngle2, [0, 169, 110]); // Info color
+            }
+
+            // Leyenda de la gráfica (Mejorada con valores y porcentajes)
+            pdf.setFontSize(10);
+            
+            // Textos a mostrar
+            const textoAportado = `Aportado (${(aportadoPorcentaje * 100).toFixed(1)}%): ${formatearMoneda(ultimoAño.totalAportado)}`;
+            const textoIntereses = `Intereses (${(interesesPorcentaje * 100).toFixed(1)}%): ${formatearMoneda(ultimoAño.interesesAcumulados)}`;
+            
+            // Leyenda Aportado (Dark Modern)
+            pdf.setFillColor(30, 41, 59);
+            pdf.rect(130, 68, 5, 5, 'F');
+            pdf.setTextColor(40, 40, 40);
+            pdf.setFont("helvetica", "bold");
+            pdf.text(textoAportado, 138, 72);
+            
+            // Leyenda Intereses (Info Color)
+            pdf.setFillColor(0, 169, 110);
+            pdf.rect(130, 75, 5, 5, 'F');
+            pdf.text(textoIntereses, 138, 79);
+            
+            // Restaurar fuente normal para lo siguiente
+            pdf.setFont("helvetica", "normal");
+            
+            // --- FIN GRÁFICA TARTA ---
+
+            // Preparar datos para la tabla
+            const tableHeaders = [["Año", "Total Aportado", "Intereses Acumulados", "Valor Total"]];
+            const tableData = todosLosResultados.map(row => [
+              (añoActual + row.año).toString(),
+              formatearMoneda(row.totalAportado),
+              formatearMoneda(row.interesesAcumulados),
+              formatearMoneda(row.valorTotal)
+            ]);
+
+            // Generar tabla dinámica que soporta multiline/paginación
+            autoTable(pdf, {
+              startY: 90,
+              head: tableHeaders,
+              body: tableData,
+              theme: 'striped',
+              headStyles: { fillColor: [87, 13, 248] }, // Primary color aprox
+              styles: { 
+                fontSize: 10,
+                cellPadding: 4,
+                halign: 'right'
+              },
+              columnStyles: {
+                0: { halign: 'center' } // Columna "Año" centrada
+              },
+              margin: { top: 20 },
+              didDrawPage: function (data) {
+                // Pie de página
+                const str = "Página " + (pdf.internal as any).getNumberOfPages();
+                pdf.setFontSize(10);
+                pdf.setTextColor(150, 150, 150);
+                pdf.text(
+                  str,
+                  data.settings.margin.left,
+                  pdf.internal.pageSize.height - 10
+                );
+              }
+            });
+
+            pdf.save(`proyeccion_fondos_${añoActual}.pdf`);
+            
+          } catch (error) {
+            console.error("Error al generar PDF:", error);
+            alert("Hubo un error al generar el PDF nativo.");
+          } finally {
+            btnExportarPDF.classList.remove("btn-disabled");
+            btnExportarPDF.innerHTML = textoOriginal;
           }
         });
       }
